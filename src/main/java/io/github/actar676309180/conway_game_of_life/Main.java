@@ -88,7 +88,6 @@ public class Main {
         nextButton.setBounds(cellWidth * cellCount + 25, 100, 100, 50);
         nextButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                pause();
                 next();
             }
         });
