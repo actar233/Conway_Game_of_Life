@@ -1,4 +1,4 @@
-package io.github.actar676309180.conway_game_of_life;
+package io.github.actar233.conway_game_of_life;
 
 import javax.swing.*;
 import java.awt.*;
@@ -47,17 +47,15 @@ public class Main {
     }
 
     private static void initPlay() {
-        new Thread(new Runnable() {
-            public void run() {
-                //noinspection InfiniteLoopStatement
-                while (true) {
-                    try {
-                        Thread.sleep(interval);
-                    } catch (InterruptedException ignored) {
-                    }
-                    if (play) {
-                        next();
-                    }
+        new Thread(() -> {
+            //noinspection InfiniteLoopStatement
+            while (true) {
+                try {
+                    Thread.sleep(interval);
+                } catch (InterruptedException ignored) {
+                }
+                if (play) {
+                    next();
                 }
             }
         }).start();
@@ -67,17 +65,15 @@ public class Main {
         playButton = new JButton("play");
 
         playButton.setBounds(cellWidth * cellCount + 25, 25, 100, 50);
-        playButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-                play = !play;
-                playButton.setText(play ? "pause" : "play");
-            }
+        playButton.addActionListener(actionEvent -> {
+            play = !play;
+            playButton.setText(play ? "pause" : "play");
         });
 
         jFrame.add(playButton);
     }
 
-    private static void pause(){
+    private static void pause() {
         play = false;
         playButton.setText("play");
     }
@@ -86,11 +82,7 @@ public class Main {
         nextButton = new JButton("next");
 
         nextButton.setBounds(cellWidth * cellCount + 25, 100, 100, 50);
-        nextButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-                next();
-            }
-        });
+        nextButton.addActionListener(actionEvent -> next());
 
         jFrame.add(nextButton);
     }
@@ -99,11 +91,7 @@ public class Main {
         clearButton = new JButton("clear");
 
         clearButton.setBounds(cellWidth * cellCount + 25, 175, 100, 50);
-        clearButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-                clear();
-            }
-        });
+        clearButton.addActionListener(actionEvent -> clear());
 
         jFrame.add(clearButton);
     }
@@ -117,11 +105,7 @@ public class Main {
         jFrame.add(label);
         randomButton = new JButton("random");
         randomButton.setBounds(cellWidth * cellCount + 25, 300, 100, 50);
-        randomButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-                random();
-            }
-        });
+        randomButton.addActionListener(actionEvent -> random());
         jFrame.add(randomButton);
     }
 
@@ -133,12 +117,12 @@ public class Main {
         try {
             double num = Double.valueOf(text);
 
-            if (num>100){
+            if (num > 100) {
                 JOptionPane.showMessageDialog(jFrame, "Input value should be less than 100", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            if (num<0){
+            if (num < 0) {
                 JOptionPane.showMessageDialog(jFrame, "Input value should be greater than 0", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -165,7 +149,7 @@ public class Main {
     }
 
     private static void clear() {
-        cells = new boolean[20][20];
+        cells = new boolean[cellCount][cellCount];
         refresh();
     }
 
@@ -184,11 +168,9 @@ public class Main {
     }
 
     private static ActionListener getOnClick(final int x, final int y) {
-        return new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-                cells[x][y] = !cells[x][y];
-                refresh();
-            }
+        return actionEvent -> {
+            cells[x][y] = !cells[x][y];
+            refresh();
         };
     }
 
@@ -217,13 +199,11 @@ public class Main {
         cells = next;
         refresh();
         if (!checkCells()) {
-            play = false;
-            playButton.setText("play");
+            pause();
         }
     }
 
     private static boolean checkCellAround(int x, int y) {
-        boolean current = cells[x][y];
         int around = 0;
 
         if (checkCell(x - 1, y - 1)) around++;
@@ -235,13 +215,13 @@ public class Main {
         if (checkCell(x + 1, y)) around++;
         if (checkCell(x + 1, y + 1)) around++;
 
-        if (current) {
-            if (around < 2) {
+        switch (around) {
+            case 2:
+                return cells[x][y];
+            case 3:
+                return true;
+            default:
                 return false;
-            }
-            return around <= 3;
-        } else {
-            return around == 3;
         }
 
     }
@@ -252,7 +232,6 @@ public class Main {
             if (x >= cellCount) x = 0;
             if (y < 0) y = cellCount - 1;
             if (y >= cellCount) y = 0;
-
         }
         return cells[x][y];
     }
@@ -262,11 +241,7 @@ public class Main {
     }
 
     private static boolean checkCells() {
-        for (boolean[] cells : cells) {
-            for (boolean cell : cells) {
-                if (cell) return true;
-            }
-        }
+        for (boolean[] cells : cells) for (boolean cell : cells) if (cell) return true;
         return false;
     }
 
